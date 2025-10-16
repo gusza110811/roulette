@@ -22,10 +22,10 @@ GRAY = "\033[90m"
 RESET = "\033[0m"
 
 class Game:
-    def __init__(self,live_rounds:int):
+    def __init__(self,live_rounds:int,ai:Ai = Randomizer):
         self.live_rounds = live_rounds
         self.state = state.NONE
-        self.ai:Ai = Randomizer(live_rounds) # literally the most basic ai
+        self.ai:Ai = ai(live_rounds) # literally the most basic ai
 
         self.player_blank_count = 0
 
@@ -94,5 +94,5 @@ class Game:
         return self.state
 
 if __name__ == "__main__":
-    game = Game(1)
+    game = Game(1,Coward)
     game.game()
