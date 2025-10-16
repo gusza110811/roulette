@@ -1,5 +1,5 @@
 from enum import Enum
-from random import shuffle
+import random
 from collections import deque
 import time
 from ai import *
@@ -25,11 +25,13 @@ class Game:
     def __init__(self,live_rounds:int):
         self.live_rounds = live_rounds
         self.state = state.NONE
-        self.ai:Ai = Randomizer() # literally the most basic ai
+        self.ai:Ai = Randomizer(live_rounds) # literally the most basic ai
+
+        self.player_blank_count = 0
 
     def ai_turn(self):
         chamber = self.barrel.popleft(); self.barrel.append(chamber)
-        choice = self.ai.play()
+        choice = self.ai.play(self.player_blank_count)
         if choice == 0:
             print("The opponent chose to shoot themself\n")
             if chamber == Round.BLANK:
@@ -48,6 +50,7 @@ class Game:
             else:
                 print(RED +"It was a live round, you died"+RESET)
                 self.state = state.LOST
+        self.player_blank_count = 0
 
     def player(self):
         print("Choose an action\n\
@@ -59,26 +62,28 @@ class Game:
         chamber = self.barrel.popleft(); self.barrel.append(chamber)
         if chamber == Round.BLANK:
             if choice == "1":
+                time.sleep(0.5+random.random())
                 print(BLUE+"It was blank, you get to play another turn"+RESET)
                 time.sleep(1)
+                self.player_blank_count += 1
                 self.player()
             else:
                 print(GRAY+"It was blank, the game continues"+RESET)
                 time.sleep(1)
         elif chamber == Round.LIVE:
             if choice == "1":
+                time.sleep(1)
                 print(RED+"It was a live round, you are dead."+RESET)
                 self.state = state.LOST
             elif choice == "2":
                 print(GREEN+"It was a live round, you have won."+RESET)
                 self.state = state.WIN
-
     
     def game(self):
         print(CLEAR)
         print(f"Russian Roulette, {self.live_rounds} live, {6-self.live_rounds} blank")
         self.barrel = deque([Round.BLANK] * (6-self.live_rounds) + [Round.LIVE]*self.live_rounds)
-        shuffle(self.barrel)
+        random.shuffle(self.barrel)
 
         self.state = state.GOING
 
